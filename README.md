@@ -141,8 +141,6 @@ Exiting program...
 
 - File system representation 🗂️.
 - Scene graph hierarchies in game engines 🎮.
-- Generic tree-based structures in applications.
-
 
 ## 📄 License
 

@@ -4,7 +4,7 @@
 
 class Entity {
 public:
-    explicit Entity(int id) noexcept
+    Entity(int id) noexcept
         : m_Id{ id }
     {
         
@@ -74,6 +74,27 @@ int main(int, char**) {
     std::cout << "Printing all entities:\n";
     entities.ForAll([](auto& elem) { std::cout << "Root: " << elem.GetId() << std::endl; });
 
+    std::cout << "Multiple children insert for 5:\n";
+    std::vector<Entity> ents{ 12, 33, 11, 22, 11, 11 };
+    auto res{ entities.InsertMultiple([](const auto& elem) { return elem.GetId() == 5; }, ents.begin(), ents.end()) };
+
+    if (res) {
+        std::cerr << "Insert succesfull" << std::endl;
+    } else {
+        std::cerr << "Insert not succesfull" << std::endl;
+    }
+
+    std::cerr << "Trying again:" << std::endl;
+
+    entities.Insert(5);
+    res = entities.InsertMultiple([](const auto& elem) { return elem.GetId() == 5; }, ents.begin(), ents.end());
+
+    std::cout << "Printing all children from entity wtih ID 5:\n";
+    entities.ForAllChildren([](auto& elem) { std::cout << "Root: " << elem.GetId() << std::endl; },
+        [](const auto& elem) { return elem.GetId() == 5; });
+
+    std::cout << "Printing all entities:\n";
+    entities.ForAll([](auto& elem) { std::cout << "Root: " << elem.GetId() << std::endl; });
 
     std::cout << "Exiting program...\n";
 

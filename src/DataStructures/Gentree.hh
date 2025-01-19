@@ -25,6 +25,28 @@ namespace Mikoto {
             return false;
         }
 
+        template<typename UnaryPred, typename InputIt>
+        auto InsertMultiple(UnaryPred&& pred, InputIt start, InputIt end) -> bool {
+            size_t index{ 0 };
+
+            std::unique_ptr<Node>* parentPtr{ nullptr };
+
+            while (!parentPtr && index < m_Nodes.size()) {
+                parentPtr = Find(pred, m_Nodes[index++]);
+            }
+
+            if (parentPtr) {
+                for ( ; start != end; ++start) {
+                    auto result{ std::make_unique<Node>(*start) };
+                    (*parentPtr)->children.emplace_back(std::move(result));
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         template<typename UnaryPred, typename... Args>
         auto InsertChild(UnaryPred&& pred, Args&&... args) -> bool {
             auto found{ false };
@@ -88,6 +110,23 @@ namespace Mikoto {
             }
         }
 
+        template<typename UnaryFunc, typename UnaryPred>
+        auto ForAllChildren(UnaryFunc&& func, UnaryPred&& pred) -> void {
+            size_t index{ 0 };
+
+            std::unique_ptr<Node>* parentPtr{ nullptr };
+
+            while (!parentPtr && index < m_Nodes.size()) {
+                parentPtr = Find(pred, m_Nodes[index++]);
+            }
+            
+            if (parentPtr) {
+                for (auto& node : (*parentPtr)->children) {
+                    TraverseWithPred(func, [](const auto&) { return true; }, *node);
+                }
+            }
+        }
+
         template<typename UnaryPred>
         auto Erase(UnaryPred&& pred) -> bool {
             auto erased{ false };
@@ -116,6 +155,9 @@ namespace Mikoto {
             {
 
             }
+
+            Node(const Node&) = default;
+            Node(Node&&) = default;
 
             value_type data;
             std::vector<std::unique_ptr<Node>> children;
